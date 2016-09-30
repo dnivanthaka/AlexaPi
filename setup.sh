@@ -1,8 +1,9 @@
 #! /bin/bash
+# Modified for Raspberry Pi Zero running Raspbian Jessie Lite
 
 apt-get update
-apt-get install libasound2-dev memcached mpg123 python-alsaaudio -y
-easy_install pip
+apt-get install python-pip libasound2-dev memcached mpg123 python-alsaaudio -y
+#easy_install pip
 pip install -r requirements.txt
 cp initd_alexa.sh /etc/init.d/AlexaPi
 update-rc.d AlexaPi defaults
@@ -27,6 +28,7 @@ echo Client_ID = \"$cid\" >> creds.py
 echo "Enter your Security Client Secret:"
 read secret
 echo Client_Secret = \"$secret\" >> creds.py
+echo refresh_token = "" >> creds.py
 
 ip=`hostname -I`
 python ./auth_web.py 
