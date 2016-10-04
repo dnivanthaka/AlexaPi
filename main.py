@@ -17,6 +17,7 @@ from memcache import Client
 button = 18 #GPIO Pin with button connected
 lights = [24, 25] # GPIO Pins with LED's conneted
 device = "plughw:1" # Name of your microphone/soundcard in arecord -L
+#device = "plug:default"
 
 #Setup
 recorded = False
@@ -53,7 +54,7 @@ def gettoken():
 		return False
 		
 
-def alexa():
+def alexa(inf):
 	GPIO.output(lights[0], GPIO.HIGH)
 	url = 'https://access-alexa-na.amazon.com/v1/avs/speechrecognizer/recognize'
 	headers = {'Authorization' : 'Bearer %s' % gettoken()}
@@ -77,12 +78,12 @@ def alexa():
        		"format": "audio/L16; rate=16000; channels=1"
    		}
 	}
-	with open(path+'recording.wav') as inf:
-		files = [
-				('file', ('request', json.dumps(d), 'application/json; charset=UTF-8')),
-				('file', ('audio', inf, 'audio/L16; rate=16000; channels=1'))
-				]	
-		r = requests.post(url, headers=headers, files=files)
+	#with open(path+'recording.wav') as inf:
+	files = [
+			('file', ('request', json.dumps(d), 'application/json; charset=UTF-8')),
+			('file', ('audio', inf, 'audio/L16; rate=16000; channels=1'))
+		]	
+	r = requests.post(url, headers=headers, files=files)
 	if r.status_code == 200:
 		for v in r.headers['content-type'].split(";"):
 			if re.match('.*boundary.*', v):
@@ -98,6 +99,7 @@ def alexa():
 		os.system('mpg123 -q {}1sec.mp3 {}response.mp3 {}1sec.mp3'.format(path, path, path))
 		GPIO.output(lights[0], GPIO.LOW)
 	else:
+		print r.status_code
 		GPIO.output(lights[1], GPIO.LOW)
 		for x in range(0, 3):
 			time.sleep(.2)
@@ -124,11 +126,11 @@ def start():
 			l, data = inp.read()
 			if l:
 				audio += data
-		rf = open(path+'recording.wav', 'w')
-		rf.write(audio)
-		rf.close()
+		#rf = open(path+'recording.wav', 'w')
+		#rf.write(audio)
+		#rf.close()
 		inp = None
-		alexa()
+		alexa(audio)
 
 	
 
